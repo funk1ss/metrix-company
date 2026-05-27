@@ -334,6 +334,152 @@ img,video,canvas,svg{max-width:100%;max-height:100%;}
 .edit-toggle{position:fixed;top:20px;left:20px;width:42px;height:42px;background:rgba(67,97,238,.9);border:none;border-radius:10px;font-size:19px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s;z-index:10001;}
 .edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
 [contenteditable="true"]{outline:2px dashed rgba(67,97,238,.6)!important;border-radius:3px;}
+
+/* ======================================================= */
+/* === MOBILE RESPONSIVE — адаптив для планшетов/телефонов */
+/* ======================================================= */
+@media (max-width: 900px) {
+
+  /* --- Stage & Slides: отключаем 1920×1080 scale --- */
+  .deck-stage{width:100vw!important;height:100dvh!important;left:0!important;top:0!important;}
+  .slide{width:100%!important;height:100%!important;overflow-y:auto!important;overflow-x:hidden!important;}
+  /* Hero canvas не скроллится */
+  .s1{overflow:hidden!important;}
+
+  /* --- Progress bar & counter --- */
+  #progressBar{height:3px;}
+  #slideCounter{font-size:11px;padding:3px 10px;top:8px;right:12px;}
+
+  /* --- Navbar --- */
+  .nav{height:52px;padding:0 14px;}
+  .nav-logo{font-size:15px;gap:7px;}
+  .nav-logo-svg{width:22px;height:22px;}
+  .ns-label{display:none;}
+  .ns-item{min-width:36px;padding:8px 5px;}
+  .ns-item.active::after{width:14px;}
+  .ns-icon{width:18px;height:18px;}
+
+  /* --- Боковые стрелки навигации --- */
+  .nav-arrow{width:40px;height:40px;}
+  .nav-arrow svg{width:17px;height:17px;}
+  .nav-prev{left:4px;}
+  .nav-next{right:4px;}
+  .kbd-hint{display:none!important;}
+
+  /* --- Бейдж номера слайда --- */
+  .snb{width:38px;height:38px;font-size:13px;border-radius:6px;bottom:10px;right:10px;}
+
+  /* ---- СЛАЙД 1: HERO ---- */
+  .hero-c{gap:10px;padding:0 24px;}
+  .hero-logo{width:80px;height:80px;}
+  .hero-logo svg{width:80px!important;height:80px!important;}
+  .hero-title{font-size:clamp(32px,9.5vw,60px);letter-spacing:-1px;}
+  .hero-sub{font-size:clamp(12px,3.5vw,22px);letter-spacing:2px;}
+  .hero-btn{padding:13px 36px;font-size:15px;margin-top:4px;}
+
+  /* ---- СЛАЙД 2: МИССИЯ ---- */
+  .s2{padding-top:52px;}
+  .mission-wrap{grid-template-columns:1fr;top:52px;}
+  .mission-visual{display:none;}
+  .mission-text{padding:24px 22px;gap:20px;justify-content:flex-start;}
+  .mission-head{font-size:clamp(24px,6.5vw,40px);}
+  .mission-label{font-size:clamp(14px,3.8vw,20px);}
+  .mission-body{font-size:clamp(13px,3.4vw,17px);line-height:1.65;}
+
+  /* ---- СЛАЙДЫ 3–5: ПРОБЛЕМЫ ---- */
+  .s-prob{padding-top:52px;}
+  .prob-head-wrap{padding-top:52px;}
+  .sh{font-size:clamp(20px,5.2vw,38px);}
+  .p6-grid{grid-template-columns:1fr;padding:0 18px;gap:10px;margin-top:18px;}
+  .p-card{padding:15px 18px;gap:12px;border-radius:12px;}
+  .p-text{font-size:clamp(13px,3.4vw,17px);}
+  .p-dot{width:11px;height:11px;min-width:11px;}
+  .p4-list{padding:0 18px;gap:12px;margin-top:18px;}
+  .p4-item{padding:15px 18px;border-radius:12px;}
+  .p4-title{font-size:clamp(14px,3.8vw,19px);}
+  .p4-desc{font-size:clamp(12px,3.2vw,16px);}
+
+  /* ---- СЛАЙД 6: ЭКОСИСТЕМА ---- */
+  .eco-grid{grid-template-columns:1fr 1fr;padding:0 18px;gap:10px;margin-top:18px;}
+  .eco-card{padding:18px 14px;gap:10px;border-radius:12px;}
+  .eco-icon{width:32px;height:32px;}
+  .eco-name{font-size:clamp(12px,3.2vw,16px);line-height:1.3;}
+
+  /* ---- МОДУЛИ TYPE A (что делает?) ---- */
+  .s-mod{grid-template-columns:1fr;grid-template-rows:auto 1fr;}
+  /* Левая панель становится горизонтальной шапкой */
+  .mod-left{
+    flex-direction:row;align-items:center;justify-content:flex-start;
+    padding:16px 20px;gap:16px;min-height:unset;
+    border-right:none;border-bottom:1px solid rgba(67,97,238,.28);
+  }
+  .mod-left-bg,.mod-left-grid{display:none;}
+  .mod-icon-wrap{width:60px;height:60px;min-width:60px;animation:none;flex-shrink:0;}
+  .mod-icon-wrap svg{width:34px;height:34px;}
+  .mod-name{font-size:clamp(15px,4vw,26px);text-align:left;}
+  .mod-badge{font-size:13px;padding:5px 14px;}
+  .mod-right{padding:16px 18px;gap:10px;}
+  .fi{padding:12px 14px;gap:10px;border-radius:10px;}
+  .fi-dot{width:10px;height:10px;min-width:10px;}
+  .fi-title{font-size:clamp(13px,3.5vw,18px);}
+  .fi-desc{font-size:clamp(11px,3vw,15px);}
+
+  /* ---- МОДУЛИ TYPE B (для чего?) ---- */
+  .mod-b-header{padding:16px 20px;gap:14px;}
+  .mod-b-header-bg{display:none;}
+  .mod-b-icon-ring{width:54px;height:54px;min-width:54px;animation:none;}
+  .mod-b-icon-ring svg{width:30px;height:30px;}
+  .mod-b-name{font-size:clamp(17px,4.5vw,30px);}
+  .mod-b-badge{font-size:13px;padding:5px 14px;}
+  .mod-b-cards{grid-template-columns:1fr 1fr;padding:14px 18px;gap:10px;}
+  .mod-b-card{padding:15px 14px;gap:7px;border-radius:12px;}
+  .mod-b-num{font-size:24px;}
+  .mod-b-title{font-size:clamp(12px,3vw,16px);}
+  .mod-b-desc{font-size:clamp(11px,2.7vw,14px);}
+
+  /* ---- СЛАЙД 23: ПОЧЕМУ METRIX ---- */
+  .why-grid{grid-template-columns:1fr 1fr;padding:0 18px;gap:12px;margin-top:20px;}
+  .why-card{padding:18px 15px;gap:9px;border-radius:12px;}
+  .why-icon{width:36px;height:36px;border-radius:8px;}
+  .why-icon svg{width:20px;height:20px;}
+  .why-title{font-size:clamp(12px,3vw,16px);}
+  .why-desc{font-size:clamp(11px,2.7vw,14px);}
+
+  /* ---- СЛАЙД 24: CTA ---- */
+  .cta-c{padding:60px 20px 20px;gap:22px;}
+  .cta-title{font-size:clamp(20px,5.5vw,44px);}
+  .cta-grid{grid-template-columns:1fr;gap:12px;}
+  .cta-card{padding:18px 18px;gap:10px;border-radius:14px;}
+  .cta-icon{width:40px;height:40px;border-radius:9px;}
+  .cta-icon svg{width:22px;height:22px;}
+  .cta-ctitle{font-size:clamp(14px,3.8vw,20px);}
+  .cta-cdesc{font-size:clamp(12px,3.1vw,16px);}
+
+  /* ---- СЛАЙД 25: КОНТАКТ ---- */
+  .contact-c{gap:16px;}
+  .contact-title{font-size:clamp(18px,5vw,36px);}
+  .contact-ring{width:min(78vw,300px);height:min(78vw,300px);padding:22px;gap:7px;}
+  .contact-name{font-size:clamp(15px,4.2vw,26px);}
+  .contact-role{font-size:clamp(12px,3.2vw,16px);margin-bottom:4px;}
+  .contact-line{font-size:clamp(12px,3.4vw,18px);}
+}
+
+/* ---- Телефон в портрете: дополнительное уплотнение (≤ 480px) ---- */
+@media (max-width: 480px) {
+  .nav-sections{gap:0;}
+  .ns-item{min-width:30px;padding:6px 3px;}
+  .ns-icon{width:16px;height:16px;}
+
+  /* Одна колонка для плотных сеток */
+  .eco-grid{grid-template-columns:1fr;}
+  .mod-b-cards{grid-template-columns:1fr;}
+  .why-grid{grid-template-columns:1fr;}
+
+  /* Чуть меньше заголовки */
+  .hero-title{font-size:8.5vw;}
+  .mission-head{font-size:6vw;}
+  .cta-title{font-size:5vw;}
+}
 </style>
 </head>
 <body>
@@ -1022,6 +1168,11 @@ class Deck {
   }
 
   scale(){
+    if(window.innerWidth <= 900){
+      // Mobile: убираем scaling transform, CSS media query управляет размерами
+      this.stage.style.transform = '';
+      return;
+    }
     const f = Math.min(window.innerWidth/1920, window.innerHeight/1080);
     const x = (window.innerWidth - 1920*f)/2;
     const y = (window.innerHeight - 1080*f)/2;
