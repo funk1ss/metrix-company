@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>metriX company — Сила в цифраХ</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800&family=Russo+One&display=swap" rel="stylesheet">
+<style>
+/* === THEME VARIABLES === */
+:root {
+  --bg:        #06091E;
+  --bg2:       #0B1035;
+  --bg3:       #101848;
+  --blue:      #4361EE;
+  --blue2:     #7B96F8;
+  --blue3:     rgba(67,97,238,.15);
+  --green:     #22C55E;
+  --green2:    #4ADE80;
+  --text:      #E8EDFF;
+  --text2:     #8899CC;
+  --text3:     #3A5080;
+  --card:      rgba(255,255,255,.04);
+  --cborder:   rgba(67,97,238,.22);
+  --stage-bg:  #06091E;
+  --slide-bg:  #06091E;
+  --ff-d:      'Russo One', sans-serif;
+  --ff-h:      'Montserrat', sans-serif;
+  --ff-b:      'Nunito', sans-serif;
+  --ease:      cubic-bezier(.16,1,.3,1);
+}
+
+/* === RESET === */
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* === VIEWPORT BASE CSS (full) === */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#06091E);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#06091E);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{html,body{width:1920px;height:auto;overflow:visible;background:#fff;}.deck-viewport{position:static;overflow:visible;background:#fff;}.deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}.slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;}.slide:last-child{break-after:auto;page-break-after:auto;}.deck-controls{display:none!important;}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important;}}
+/* === END VIEWPORT BASE CSS === */
+
+/* === GRID TEXTURE (all slides) === */
+.slide::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(67,97,238,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(67,97,238,.04) 1px,transparent 1px);background-size:72px 72px;pointer-events:none;z-index:0;}
+
+/* === PROGRESS BAR === */
+#progressBar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .5s var(--ease);z-index:10000;box-shadow:0 0 12px rgba(67,97,238,.7);}
+
+/* === SLIDE COUNTER === */
+#slideCounter{position:fixed;top:6px;right:14px;font-family:var(--ff-h);font-size:13px;font-weight:600;color:rgba(255,255,255,.35);z-index:10001;letter-spacing:1px;}
+
+/* === ANIMATIONS === */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+.slide.visible .reveal{opacity:1;transform:translateY(0);}
+.rl{opacity:0;transform:translateX(-36px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+.slide.visible .rl{opacity:1;transform:translateX(0);}
+.rs{opacity:0;transform:scale(.92);transition:opacity .65s var(--ease),transform .65s var(--ease);}
+.slide.visible .rs{opacity:1;transform:scale(1);}
+.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}.d4{transition-delay:.4s;}
+.d5{transition-delay:.5s;}.d6{transition-delay:.6s;}.d7{transition-delay:.7s;}.d8{transition-delay:.8s;}
+.slide{transition:opacity .38s ease;}
+
+/* === NAVIGATION BAR === */
+.nav{position:absolute;top:0;left:0;right:0;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 72px;background:rgba(6,9,30,.82);backdrop-filter:blur(12px);border-bottom:1px solid rgba(67,97,238,.18);z-index:10;}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:var(--ff-h);font-weight:800;font-size:20px;color:var(--text);letter-spacing:-.3px;}
+.nav-logo-svg{width:32px;height:32px;flex-shrink:0;}
+.nav-links{display:flex;gap:44px;list-style:none;}
+.nav-links li a{font-family:var(--ff-b);font-size:17px;color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-links li a:hover{color:var(--text);}
+.nav-burger{display:flex;flex-direction:column;gap:6px;cursor:pointer;}
+.nav-burger span{display:block;height:2px;background:var(--blue);border-radius:1px;}
+.nav-burger span:nth-child(1){width:28px;}
+.nav-burger span:nth-child(2){width:18px;}
+
+/* === SLIDE NUMBER BADGE === */
+.snb{position:absolute;bottom:28px;right:28px;width:58px;height:58px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-h);font-weight:700;font-size:20px;color:#fff;z-index:20;letter-spacing:.5px;}
+
+/* === SLIDE HEADING === */
+.sh{font-family:var(--ff-h);font-weight:800;font-size:58px;color:var(--text);text-align:center;line-height:1.15;position:relative;z-index:2;}
+.sh .b{color:var(--blue2);}
+.sh .g{color:var(--green);}
+
+/* ========================= */
+/* SLIDE 1 — HERO            */
+/* ========================= */
+.s1{background:#06091E;}
+.s1::before{display:none;}
+#heroCanvas{position:absolute;inset:0;width:1920px;height:1080px;}
+.hero-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:5;}
+.hero-glow{position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(67,97,238,.14) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);animation:gp 5s ease-in-out infinite;}
+.hero-glow2{position:absolute;width:350px;height:350px;background:radial-gradient(circle,rgba(34,197,94,.09) 0%,transparent 70%);top:22%;right:18%;animation:gp 5s ease-in-out infinite reverse;}
+@keyframes gp{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1);}50%{opacity:1;transform:translate(-50%,-50%) scale(1.12);}}
+.hero-logo{width:160px;height:160px;display:flex;align-items:center;justify-content:center;}
+.hero-title{font-family:var(--ff-d);font-size:100px;color:var(--text);text-align:center;letter-spacing:-2px;line-height:1;}
+.hero-title .x{color:var(--green);}
+.hero-sub{font-family:var(--ff-h);font-weight:700;font-size:36px;color:var(--blue2);letter-spacing:3px;text-transform:uppercase;}
+.hero-sub .g{color:var(--green);}
+.hero-btn{margin-top:16px;padding:20px 60px;background:var(--blue);border-radius:50px;font-family:var(--ff-h);font-weight:700;font-size:22px;color:#fff;letter-spacing:1px;border:none;cursor:pointer;box-shadow:0 0 40px rgba(67,97,238,.45);transition:transform .2s,box-shadow .2s;}
+.hero-btn:hover{transform:translateY(-3px);box-shadow:0 0 60px rgba(67,97,238,.65);}
+
+/* ========================= */
+/* SLIDE 2 — MISSION         */
+/* ========================= */
+.s2{padding-top:68px;}
+.mission-wrap{position:absolute;inset:0;top:68px;display:grid;grid-template-columns:1fr 520px;gap:0;z-index:2;}
+.mission-text{padding:60px 80px;display:flex;flex-direction:column;gap:48px;justify-content:center;}
+.mission-head{font-family:var(--ff-h);font-weight:800;font-size:62px;color:var(--text);margin-bottom:8px;}
+.mission-divider{width:64px;height:4px;background:var(--blue);border-radius:2px;}
+.mission-block{display:flex;flex-direction:column;gap:12px;}
+.mission-label{font-family:var(--ff-h);font-weight:700;font-size:26px;color:var(--blue2);padding-left:18px;border-left:4px solid var(--blue);}
+.mission-body{font-family:var(--ff-b);font-size:22px;line-height:1.72;color:var(--text2);}
+.mission-visual{display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--bg2) 0%,var(--bg) 100%);border-left:1px solid var(--cborder);position:relative;overflow:hidden;}
+.mission-circle{width:340px;height:340px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;}
+.mission-circle-ring{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(var(--blue),var(--green),var(--blue)) border-box;animation:spin 8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.mission-circle-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px;}
+.mission-icon-big{width:100px;height:100px;color:var(--blue2);}
+.mission-word{font-family:var(--ff-d);font-size:36px;color:var(--text);}
+
+/* ========================= */
+/* SLIDES 3-5 — PROBLEMS     */
+/* ========================= */
+.s-prob{padding-top:68px;}
+.prob-head-wrap{padding-top:68px;text-align:center;position:relative;z-index:2;}
+.p6-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:52px;padding:0 100px;position:relative;z-index:2;}
+.p-card{background:var(--card);border:1px solid var(--cborder);border-radius:16px;padding:28px 32px;display:flex;align-items:center;gap:22px;transition:transform .2s,border-color .2s;}
+.p-card:hover{transform:translateY(-3px);border-color:rgba(67,97,238,.5);}
+.p-dot{width:16px;height:16px;min-width:16px;border-radius:50%;background:var(--green);box-shadow:0 0 10px rgba(34,197,94,.5);}
+.p-dot-b{background:var(--blue);box-shadow:0 0 10px rgba(67,97,238,.5);}
+.p-text{font-family:var(--ff-b);font-size:22px;line-height:1.5;color:var(--text2);}
+.p4-list{display:flex;flex-direction:column;gap:24px;margin-top:44px;padding:0 100px;position:relative;z-index:2;}
+.p4-item{background:var(--card);border:1px solid var(--cborder);border-radius:16px;padding:26px 32px;display:flex;gap:20px;align-items:flex-start;}
+.p4-dot{width:14px;height:14px;min-width:14px;border-radius:50%;background:var(--blue);margin-top:7px;box-shadow:0 0 10px rgba(67,97,238,.5);}
+.p4-title{font-family:var(--ff-h);font-weight:700;font-size:25px;color:var(--blue2);margin-bottom:5px;}
+.p4-desc{font-family:var(--ff-b);font-size:21px;line-height:1.55;color:var(--text2);}
+
+/* ========================= */
+/* SLIDE 6 — ECOSYSTEM       */
+/* ========================= */
+.eco-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:46px;padding:0 80px;position:relative;z-index:2;}
+.eco-card{background:var(--card);border:1px solid var(--cborder);border-radius:16px;padding:30px 26px;display:flex;flex-direction:column;gap:14px;transition:transform .2s,background .2s,border-color .2s;}
+.eco-card:hover{transform:translateY(-4px);background:rgba(67,97,238,.07);border-color:rgba(67,97,238,.5);}
+.eco-icon{width:48px;height:48px;color:var(--blue2);}
+.eco-dot{width:11px;height:11px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.5);}
+.eco-name{font-family:var(--ff-h);font-weight:600;font-size:20px;color:var(--text);line-height:1.4;}
+
+/* ========================= */
+/* SLIDES 7-22 — MODULES     */
+/* ========================= */
+.s-mod{display:grid;grid-template-columns:540px 1fr;}
+.s-mod::before{display:none;}
+.mod-left{background:linear-gradient(160deg,#0B1640 0%,#060924 100%);border-right:1px solid rgba(67,97,238,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:60px 48px;position:relative;overflow:hidden;}
+.mod-left-bg{position:absolute;width:440px;height:440px;background:radial-gradient(circle,rgba(67,97,238,.1) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);}
+.mod-left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(67,97,238,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(67,97,238,.05) 1px,transparent 1px);background-size:44px 44px;}
+.mod-icon-wrap{width:190px;height:190px;border-radius:50%;background:rgba(67,97,238,.1);border:2px solid rgba(67,97,238,.3);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;animation:iconPulse 4s ease-in-out infinite;}
+@keyframes iconPulse{0%,100%{box-shadow:0 0 0 0 rgba(67,97,238,.2);}50%{box-shadow:0 0 0 20px rgba(67,97,238,0);}}
+.mod-icon-wrap svg{width:105px;height:105px;color:var(--blue2);}
+.mod-name{font-family:var(--ff-h);font-weight:800;font-size:32px;color:var(--text);text-align:center;line-height:1.3;position:relative;z-index:1;}
+.mod-badge{padding:9px 26px;border-radius:50px;font-family:var(--ff-h);font-weight:700;font-size:21px;position:relative;z-index:1;}
+.mod-badge-what{background:rgba(67,97,238,.2);border:1px solid rgba(67,97,238,.45);color:var(--blue2);}
+.mod-badge-why{background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.38);color:var(--green2);}
+.mod-right{padding:68px 72px;display:flex;flex-direction:column;justify-content:center;gap:22px;background:var(--bg);position:relative;}
+.mod-right::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(67,97,238,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(67,97,238,.04) 1px,transparent 1px);background-size:72px 72px;}
+.fi{display:flex;gap:18px;align-items:flex-start;padding:22px 26px;background:var(--card);border:1px solid var(--cborder);border-radius:14px;transition:border-color .2s,background .2s;position:relative;z-index:1;}
+.fi:hover{border-color:rgba(67,97,238,.44);background:rgba(67,97,238,.06);}
+.fi-dot{width:13px;height:13px;min-width:13px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px;box-shadow:0 0 9px rgba(34,197,94,.5);}
+.fi-title{font-family:var(--ff-h);font-weight:700;font-size:24px;color:var(--blue2);margin-bottom:4px;}
+.fi-desc{font-family:var(--ff-b);font-size:20px;line-height:1.52;color:var(--text2);}
+
+/* ========================= */
+/* SLIDE 23 — WHY METRIX     */
+/* ========================= */
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:46px;padding:0 80px;position:relative;z-index:2;}
+.why-card{background:var(--card);border:1px solid var(--cborder);border-radius:20px;padding:34px 32px;display:flex;flex-direction:column;gap:14px;transition:transform .2s,background .2s,border-color .2s;position:relative;overflow:hidden;}
+.why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--green));}
+.why-card:hover{transform:translateY(-4px);background:rgba(67,97,238,.07);border-color:rgba(67,97,238,.5);}
+.why-icon{width:50px;height:50px;border-radius:12px;background:rgba(67,97,238,.14);display:flex;align-items:center;justify-content:center;}
+.why-icon svg{width:28px;height:28px;color:var(--blue2);}
+.why-title{font-family:var(--ff-h);font-weight:700;font-size:23px;color:var(--blue2);line-height:1.3;}
+.why-desc{font-family:var(--ff-b);font-size:19px;line-height:1.55;color:var(--text2);}
+
+/* ========================= */
+/* SLIDE 24 — CTA            */
+/* ========================= */
+.s-cta{background:linear-gradient(135deg,#06091E 0%,#0D1640 50%,#06091E 100%);}
+.s-cta::before{display:none;}
+.cta-glow{position:absolute;width:900px;height:900px;background:radial-gradient(circle,rgba(67,97,238,.13) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);}
+.cta-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:56px;z-index:2;}
+.cta-title{font-family:var(--ff-d);font-size:66px;color:var(--text);text-align:center;line-height:1.22;}
+.cta-title .g{color:var(--green);}
+.cta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;width:100%;}
+.cta-card{background:rgba(255,255,255,.04);border:1px solid rgba(67,97,238,.28);border-radius:20px;padding:36px 32px;display:flex;flex-direction:column;gap:14px;}
+.cta-icon{width:58px;height:58px;border-radius:14px;background:rgba(67,97,238,.18);display:flex;align-items:center;justify-content:center;}
+.cta-icon svg{width:32px;height:32px;color:var(--blue2);}
+.cta-ctitle{font-family:var(--ff-h);font-weight:700;font-size:25px;color:var(--blue2);}
+.cta-cdesc{font-family:var(--ff-b);font-size:20px;line-height:1.55;color:var(--text2);}
+
+/* ========================= */
+/* SLIDE 25 — CONTACT        */
+/* ========================= */
+.s-contact{background:linear-gradient(135deg,#06091E 0%,#0C1440 100%);}
+.s-contact::before{display:none;}
+.contact-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:700px;height:420px;background:radial-gradient(ellipse,rgba(67,97,238,.12) 0%,transparent 70%);}
+.contact-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;z-index:2;}
+.contact-title{font-family:var(--ff-h);font-weight:800;font-size:54px;color:var(--text);}
+.contact-ring{width:480px;height:480px;border-radius:50%;background:rgba(11,20,64,.6);border:1px solid rgba(67,97,238,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:48px;}
+.contact-name{font-family:var(--ff-d);font-size:40px;color:var(--text);text-align:center;}
+.contact-role{font-family:var(--ff-h);font-weight:600;font-size:22px;color:var(--blue2);margin-bottom:10px;}
+.contact-line{font-family:var(--ff-b);font-size:25px;color:var(--text2);}
+.contact-line a{color:var(--blue2);text-decoration:none;}
+
+/* === EDIT MODE === */
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:20px;left:20px;width:42px;height:42px;background:rgba(67,97,238,.9);border:none;border-radius:10px;font-size:19px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s;z-index:10001;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+[contenteditable="true"]{outline:2px dashed rgba(67,97,238,.6)!important;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- Progress bar + counter (outside stage) -->
+<div id="progressBar"></div>
+<div id="slideCounter">01 / 25</div>
+
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ================================ SLIDE 1 — HERO ================================ -->
+<section class="slide s1 active" id="s1">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none">
+        <line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/>
+        <line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/>
+        <line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/>
+        <polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      metriX company
+    </div>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Service</a></li>
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+    <div class="nav-burger"><span></span><span></span></div>
+  </nav>
+
+  <div class="hero-c">
+    <div class="hero-logo reveal d1">
+      <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
+        <!-- Outer glow circle -->
+        <circle cx="80" cy="80" r="74" stroke="rgba(67,97,238,.2)" stroke-width="2"/>
+        <circle cx="80" cy="80" r="60" stroke="rgba(67,97,238,.12)" stroke-width="1.5"/>
+        <!-- X shape: blue left part -->
+        <line x1="36" y1="36" x2="80" y2="80" stroke="#4361EE" stroke-width="14" stroke-linecap="round"/>
+        <line x1="36" y1="124" x2="80" y2="80" stroke="#4361EE" stroke-width="14" stroke-linecap="round"/>
+        <!-- X shape: green arrow right-up -->
+        <line x1="80" y1="80" x2="128" y2="32" stroke="#22C55E" stroke-width="14" stroke-linecap="round"/>
+        <polyline points="104,28 128,28 128,52" stroke="#22C55E" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Small continuation right-down blue -->
+        <line x1="80" y1="80" x2="120" y2="120" stroke="#4361EE" stroke-width="10" stroke-linecap="round" opacity=".5"/>
+      </svg>
+    </div>
+    <h1 class="hero-title reveal d2">metri<span class="x">X</span> company</h1>
+    <p class="hero-sub reveal d3">Сила в цифра<span class="g">X</span></p>
+    <button class="hero-btn reveal d4">Explore Now</button>
+  </div>
+
+  <div class="snb">01</div>
+</section>
+
+<!-- ================================ SLIDE 2 — MISSION ================================ -->
+<section class="slide s2">
+  <nav class="nav">
+    <div class="nav-logo">
+      <svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      metriX company
+    </div>
+    <ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul>
+    <div class="nav-burger"><span></span><span></span></div>
+  </nav>
+
+  <div class="mission-wrap">
+    <div class="mission-text">
+      <div class="rl d1">
+        <h2 class="mission-head">Наша миссия</h2>
+        <div class="mission-divider" style="margin-top:14px;"></div>
+      </div>
+      <div class="mission-block reveal d2">
+        <p class="mission-label">Видение:</p>
+        <p class="mission-body">Сделать коммерческую недвижимость и общественные пространства максимально эффективными за счёт глубокого анализа данных и цифровизации процессов.</p>
+      </div>
+      <div class="mission-block reveal d3">
+        <p class="mission-label">Миссия:</p>
+        <p class="mission-body">Разработать инновационную платформу, которая объединяет технологии подсчёта посетителей, сбор продаж, <strong style="color:var(--text);font-weight:700;">Wi-Fi аналитику, AI-прогнозирование</strong> и <strong style="color:var(--text);font-weight:700;">BPM</strong> для управления объектами, позволяя клиентам принимать обоснованные управленческие решения и увеличивать доходность.</p>
+      </div>
+    </div>
+    <div class="mission-visual">
+      <div class="mission-circle rs d3">
+        <div class="mission-circle-ring"></div>
+        <div class="mission-circle-inner">
+          <!-- Light bulb SVG icon -->
+          <svg class="mission-icon-big" viewBox="0 0 100 100" fill="none"><circle cx="50" cy="38" r="24" stroke="currentColor" stroke-width="4"/><path d="M40 62 Q40 72 50 72 Q60 72 60 62" stroke="currentColor" stroke-width="3.5" fill="none"/><rect x="40" y="72" width="20" height="6" rx="3" stroke="currentColor" stroke-width="3"/><rect x="43" y="78" width="14" height="5" rx="2.5" stroke="currentColor" stroke-width="2.5"/><line x1="50" y1="10" x2="50" y2="4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="72" y1="18" x2="76" y2="14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="28" y1="18" x2="24" y2="14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="80" y1="38" x2="86" y2="38" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="14" y1="38" x2="20" y2="38" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <span class="mission-word">vision</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="snb">02</div>
+</section>
+
+<!-- ================================ SLIDE 3 — MARKET PROBLEMS ================================ -->
+<section class="slide s-prob">
+  <nav class="nav"><div class="nav-logo"><svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>metriX company</div><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul><div class="nav-burger"><span></span><span></span></div></nav>
+  <div class="prob-head-wrap reveal d1"><h2 class="sh">Ключевые проблемы <span class="b">рынка</span></h2></div>
+  <div class="p6-grid">
+    <div class="p-card reveal d2"><div class="p-dot"></div><p class="p-text">Нет точных данных о реальном потоке посетителей и их сегментации</p></div>
+    <div class="p-card reveal d2"><div class="p-dot"></div><p class="p-text">Нерациональное распределение арендаторов и неэффективное ценообразование</p></div>
+    <div class="p-card reveal d3"><div class="p-dot"></div><p class="p-text">Долгий цикл принятия решений из-за разрозненности данных</p></div>
+    <div class="p-card reveal d3"><div class="p-dot"></div><p class="p-text">Недостаток инструментов для прогнозирования поведения клиентов</p></div>
+    <div class="p-card reveal d4"><div class="p-dot"></div><p class="p-text">Нет точных данных о реальном обороте арендаторов</p></div>
+    <div class="p-card reveal d4"><div class="p-dot"></div><p class="p-text">Отсутствие персонализированной рекламы и маркетинга</p></div>
+  </div>
+  <div class="snb">03</div>
+</section>
+
+<!-- ================================ SLIDE 4 — EXISTING PROBLEMS PT1 ================================ -->
+<section class="slide s-prob">
+  <nav class="nav"><div class="nav-logo"><svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>metriX company</div><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul><div class="nav-burger"><span></span><span></span></div></nav>
+  <div class="prob-head-wrap reveal d1"><h2 class="sh" style="font-size:50px;">Проблемы рынка, использующие <span class="b">аналогичные решения</span></h2></div>
+  <div class="p4-list">
+    <div class="p4-item reveal d2"><div class="p4-dot"></div><div><p class="p4-title">Фрагментация данных:</p><p class="p4-desc">Системы работают разрозненно, данные о трафике и продажах не объединены, что мешает получению целостной картины и корректному принятию решений.</p></div></div>
+    <div class="p4-item reveal d3"><div class="p4-dot"></div><div><p class="p4-title">Ограниченная аналитика:</p><p class="p4-desc">Большинство текущих решений предоставляют базовые метрики (количество посетителей, объем продаж), но не дают глубоких инсайтов, прогнозов или рекомендаций для оптимизации бизнес-процессов.</p></div></div>
+    <div class="p4-item reveal d4"><div class="p4-dot"></div><div><p class="p4-title">Отсутствие интеграции:</p><p class="p4-desc">Невозможность бесшовного подключения к CRM, BPM, ERP и другим бизнес-системам приводит к дублированию усилий и повышенной нагрузке на аналитический отдел.</p></div></div>
+    <div class="p4-item reveal d5"><div class="p4-dot"></div><div><p class="p4-title">Высокая стоимость поддержки и обновления:</p><p class="p4-desc">Устаревшие системы требуют значительных инвестиций в обслуживание и модернизацию, что увеличивает операционные затраты для владельцев объектов.</p></div></div>
+  </div>
+  <div class="snb">04</div>
+</section>
+
+<!-- ================================ SLIDE 5 — EXISTING PROBLEMS PT2 ================================ -->
+<section class="slide s-prob">
+  <nav class="nav"><div class="nav-logo"><svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>metriX company</div><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul><div class="nav-burger"><span></span><span></span></div></nav>
+  <div class="prob-head-wrap reveal d1"><h2 class="sh" style="font-size:50px;">Проблемы рынка, использующие <span class="b">аналогичные решения</span></h2></div>
+  <div class="p4-list">
+    <div class="p4-item reveal d2"><div class="p4-dot"></div><div><p class="p4-title">Недостаток персонализации:</p><p class="p4-desc">Данные, собранные системами, не используются для создания персонализированных предложений или рекламных кампаний, что ограничивает возможности увеличения конверсии.</p></div></div>
+    <div class="p4-item reveal d3"><div class="p4-dot"></div><div><p class="p4-title">Сложности масштабирования:</p><p class="p4-desc">Традиционные решения часто не приспособлены для обработки больших объемов данных и не могут легко масштабироваться с ростом бизнеса.</p></div></div>
+    <div class="p4-item reveal d4"><div class="p4-dot"></div><div><p class="p4-title">Невозможность индивидуальной гибкой адаптации:</p><p class="p4-desc">Стандартные решения часто не учитывают уникальные потребности бизнеса. MetriX предлагает индивидуальный подход, адаптируя систему под конкретные запросы и интегрируя её с существующей инфраструктурой клиента.</p></div></div>
+    <div class="p4-item reveal d5"><div class="p4-dot"></div><div><p class="p4-title">Вопросы кибербезопасности и защиты данных:</p><p class="p4-desc">Отсутствие современных стандартов безопасности может привести к утечкам конфиденциальной информации и рискам для бизнеса.</p></div></div>
+  </div>
+  <div class="snb">05</div>
+</section>
+
+<!-- ================================ SLIDE 6 — ECOSYSTEM ================================ -->
+<section class="slide s-prob">
+  <nav class="nav"><div class="nav-logo"><svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>metriX company</div><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul><div class="nav-burger"><span></span><span></span></div></nav>
+  <div class="prob-head-wrap reveal d1"><h2 class="sh">Наше решение — экосистема <span class="g">metriX</span></h2></div>
+  <div class="eco-grid">
+    <div class="eco-card reveal d2">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="16" r="9" stroke="currentColor" stroke-width="3"/><path d="M8 42c0-9 7-16 16-16s16 7 16 16" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">Система подсчета посетителей</p>
+    </div>
+    <div class="eco-card reveal d2">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><rect x="12" y="6" width="24" height="32" rx="4" stroke="currentColor" stroke-width="3"/><rect x="16" y="12" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2.5"/><path d="M18 28 L21 31 L30 22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 38 L18 44 M30 38 L30 44 M21 40 L27 40 M21 43 L27 43" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">AI-прогнозирование на основе Big Data</p>
+    </div>
+    <div class="eco-card reveal d3">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><path d="M6 26 Q24 6 42 26" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M12 32 Q24 16 36 32" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M18 38 Q24 30 30 38" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="43" r="3" fill="currentColor"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">Wi-Fi аналитика и персонализированная реклама</p>
+    </div>
+    <div class="eco-card reveal d3">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><rect x="14" y="4" width="20" height="32" rx="5" stroke="currentColor" stroke-width="3"/><rect x="18" y="10" width="12" height="18" rx="2" stroke="currentColor" stroke-width="2.5"/><path d="M20 40 L28 40" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 20 L24 24 M24 26 L24 27" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">Система сбора продаж</p>
+    </div>
+    <div class="eco-card reveal d4">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><rect x="10" y="10" width="28" height="28" rx="4" stroke="currentColor" stroke-width="3"/><rect x="17" y="17" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2.5"/><path d="M17 10 L17 4 M24 10 L24 4 M31 10 L31 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M17 38 L17 44 M24 38 L24 44 M31 38 L31 44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M10 17 L4 17 M10 24 L4 24 M10 31 L4 31" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M38 17 L44 17 M38 24 L44 24 M38 31 L44 31" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">BPM-система для управления коммерческой недвижимостью</p>
+    </div>
+    <div class="eco-card reveal d4">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><rect x="14" y="4" width="20" height="38" rx="5" stroke="currentColor" stroke-width="3"/><rect x="18" y="10" width="12" height="22" rx="2" stroke="currentColor" stroke-width="2.5"/><path d="M20 38 L28 38" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 20 L26 24 L24 22 L22 24 Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">Мобильное приложение с программой лояльности</p>
+    </div>
+    <div class="eco-card reveal d5">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="24" rx="4" stroke="currentColor" stroke-width="3"/><rect x="14" y="12" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2.5"/><rect x="8" y="34" width="32" height="8" rx="3" stroke="currentColor" stroke-width="2.5"/><circle cx="16" cy="38" r="2" fill="currentColor"/><circle cx="24" cy="38" r="2" fill="currentColor"/><circle cx="32" cy="38" r="2" fill="currentColor"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">Электронная онлайн-касса</p>
+    </div>
+    <div class="eco-card reveal d5">
+      <svg class="eco-icon" viewBox="0 0 48 48" fill="none"><line x1="4" y1="16" x2="36" y2="16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="4" cy="20" r="4" stroke="currentColor" stroke-width="2.5"/><rect x="8" y="28" width="32" height="14" rx="4" stroke="currentColor" stroke-width="3"/><path d="M14 28 L16 20 L32 20 L34 28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="42" r="5" stroke="currentColor" stroke-width="2.5"/><circle cx="32" cy="42" r="5" stroke="currentColor" stroke-width="2.5"/></svg>
+      <div class="eco-dot"></div>
+      <p class="eco-name">Система управления паркингом</p>
+    </div>
+  </div>
+  <div class="snb">06</div>
+</section>
+
+<!-- ================================ SLIDE 7 — VISITORS: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="22" r="13" stroke="currentColor" stroke-width="3.5"/><path d="M22 68c0-10 8-18 18-18s18 8 18 18" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="16" cy="24" r="9" stroke="currentColor" stroke-width="2.5" opacity=".65"/><path d="M4 66c0-8 5-14 12-14s12 6 12 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".65"/><circle cx="64" cy="24" r="9" stroke="currentColor" stroke-width="2.5" opacity=".65"/><path d="M52 66c0-8 5-14 12-14s12 6 12 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".65"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Система<br>подсчета<br>посетителей</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Точное измерение потоков:</p><p class="fi-desc">Определение входов и выходов в ТРЦ, зоны ТРЦ, арендаторов в режиме реального времени</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Анализ временных интервалов:</p><p class="fi-desc">Фильтрация данных по часам, дням и сезонам</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Интерфейс отчетности:</p><p class="fi-desc">Автоматизированное формирование отчетов и графиков трафика</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Управление очередями:</p><p class="fi-desc">Обнаружение скопления людей, анализ ненормального поведения</p></div></div>
+  </div>
+  <div class="snb">07</div>
+</section>
+
+<!-- ================================ SLIDE 8 — VISITORS: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="22" r="13" stroke="currentColor" stroke-width="3.5"/><path d="M22 68c0-10 8-18 18-18s18 8 18 18" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="16" cy="24" r="9" stroke="currentColor" stroke-width="2.5" opacity=".65"/><path d="M4 66c0-8 5-14 12-14s12 6 12 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".65"/><circle cx="64" cy="24" r="9" stroke="currentColor" stroke-width="2.5" opacity=".65"/><path d="M52 66c0-8 5-14 12-14s12 6 12 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".65"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Система<br>подсчета<br>посетителей</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Анализ конверсии:</p><p class="fi-desc">Оценка, какой процент посетителей превращается в покупателей</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Оперативное реагирование:</p><p class="fi-desc">Система позволяет мгновенно обнаруживать пиковые нагрузки</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Оптимизация персонала:</p><p class="fi-desc">Данные помогают планировать рабочие смены и обеспечивать безопасность</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Оценка маркетингового воздействия:</p><p class="fi-desc">Отслеживание влияния маркетинговых активностей на посещаемость торгового центра</p></div></div>
+  </div>
+  <div class="snb">08</div>
+</section>
+
+<!-- ================================ SLIDE 9 — SALES: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="22" y="8" width="36" height="50" rx="6" stroke="currentColor" stroke-width="3.5"/><rect x="30" y="16" width="20" height="16" rx="3" stroke="currentColor" stroke-width="3"/><path d="M32 38 L36 42 L48 32" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 58 L32 70 M48 58 L48 70 M36 62 L44 62 M36 66 L44 66" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="56" cy="52" r="8" fill="none" stroke="#22C55E" stroke-width="3"/><path d="M52 52 L55 55 L60 49" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Система<br>сбора<br>продаж</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Сбор транзакционных данных:</p><p class="fi-desc">Автоматизация получения данных о продажах в режиме реального времени</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Интеграция с POS-системами:</p><p class="fi-desc">Автоматическое подключение к кассовым аппаратам арендаторов</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Генерация отчетов:</p><p class="fi-desc">Автоматическое создание аналитических отчетов для владельцев объектов</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Визуализация данных:</p><p class="fi-desc">Графическое отображение продаж для быстрого анализа</p></div></div>
+  </div>
+  <div class="snb">09</div>
+</section>
+
+<!-- ================================ SLIDE 10 — SALES: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="22" y="8" width="36" height="50" rx="6" stroke="currentColor" stroke-width="3.5"/><rect x="30" y="16" width="20" height="16" rx="3" stroke="currentColor" stroke-width="3"/><path d="M32 38 L36 42 L48 32" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 58 L32 70 M48 58 L48 70 M36 62 L44 62 M36 66 L44 66" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="56" cy="52" r="8" fill="none" stroke="#22C55E" stroke-width="3"/><path d="M52 52 L55 55 L60 49" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Система<br>сбора<br>продаж</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Прозрачность финансов:</p><p class="fi-desc">Полная видимость денежных потоков и оборотов</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Оптимизация арендной платы:</p><p class="fi-desc">Возможность аргументированной корректировки ставок на основе фактических продаж</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Снижение вакантности:</p><p class="fi-desc">Выявление проблемных арендаторов для уменьшения пустующих площадей и снижения ротации</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Анализ маркетингового воздействия:</p><p class="fi-desc">Оценка влияния маркетинговых мероприятий на продажи арендаторов</p></div></div>
+  </div>
+  <div class="snb">10</div>
+</section>
+
+<!-- ================================ SLIDE 11 — WIFI: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><path d="M10 42 Q40 8 70 42" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M20 52 Q40 24 60 52" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M30 62 Q40 46 50 62" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="72" r="5" fill="currentColor"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Wi-Fi<br>аналитика</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Отслеживание маршрутов:</p><p class="fi-desc">Сбор данных о перемещениях посетителей с использованием MAC-адресов</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Построение тепловых карт:</p><p class="fi-desc">Визуальное представление зон с разной активностью</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Сегментация по времени пребывания:</p><p class="fi-desc">Анализ времени, проведённого в различных зонах объекта</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Анализ потоков:</p><p class="fi-desc">Определение основных путей движения и скоплений людей</p></div></div>
+  </div>
+  <div class="snb">11</div>
+</section>
+
+<!-- ================================ SLIDE 12 — WIFI: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><path d="M10 42 Q40 8 70 42" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M20 52 Q40 24 60 52" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M30 62 Q40 46 50 62" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="72" r="5" fill="currentColor"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Wi-Fi<br>аналитика</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Оценка вовлеченности:</p><p class="fi-desc">Определение времени пребывания и повторных визитов</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Синергия арендаторов:</p><p class="fi-desc">Анализ перемещений между магазинами</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Сегментация аудитории:</p><p class="fi-desc">Определение семейного статуса, пола и возраста посетителей</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Таргетированная реклама:</p><p class="fi-desc">Запуск персонализированных рекламных кампаний для офлайн-посетителей</p></div></div>
+  </div>
+  <div class="snb">12</div>
+</section>
+
+<!-- ================================ SLIDE 13 — BIG DATA AI: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="22" y="22" width="36" height="36" rx="5" stroke="currentColor" stroke-width="3.5"/><rect x="30" y="30" width="20" height="20" rx="3" stroke="currentColor" stroke-width="3"/><path d="M30 22 L30 14 M40 22 L40 14 M50 22 L50 14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M30 58 L30 66 M40 58 L40 66 M50 58 L50 66" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M22 30 L14 30 M22 40 L14 40 M22 50 L14 50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M58 30 L66 30 M58 40 L66 40 M58 50 L66 50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="36" cy="38" r="3" fill="currentColor"/><circle cx="44" cy="38" r="3" fill="currentColor"/><circle cx="40" cy="44" r="3" fill="currentColor"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Big Data<br>AI</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Прогнозирование трендов:</p><p class="fi-desc">Предсказание пиков и сезонных изменений</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Анализ в реальном времени:</p><p class="fi-desc">Мгновенная обработка данных для оперативных решений</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Сегментация аудитории:</p><p class="fi-desc">Автоматическое разделение клиентов по демографическим и поведенческим признакам</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Персонализированные рекомендации:</p><p class="fi-desc">Индивидуальные предложения на основе истории и поведения посетителей</p></div></div>
+  </div>
+  <div class="snb">13</div>
+</section>
+
+<!-- ================================ SLIDE 14 — BIG DATA AI: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="22" y="22" width="36" height="36" rx="5" stroke="currentColor" stroke-width="3.5"/><rect x="30" y="30" width="20" height="20" rx="3" stroke="currentColor" stroke-width="3"/><path d="M30 22 L30 14 M40 22 L40 14 M50 22 L50 14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M30 58 L30 66 M40 58 L40 66 M50 58 L50 66" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M22 30 L14 30 M22 40 L14 40 M22 50 L14 50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M58 30 L66 30 M58 40 L66 40 M58 50 L66 50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="36" cy="38" r="3" fill="currentColor"/><circle cx="44" cy="38" r="3" fill="currentColor"/><circle cx="40" cy="44" r="3" fill="currentColor"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Big Data<br>AI</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Экономия ресурсов:</p><p class="fi-desc">Сокращение затрат на OPEX и маркетинг за счёт автоматизации и оптимизации процессов</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Бенчмаркинг посещаемости:</p><p class="fi-desc">Возможность сравнивать собственные данные с рыночными трендами и показателями конкурентов</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Глубокий анализ:</p><p class="fi-desc">Выявление скрытых трендов для конкурентного преимущества</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Оперативность:</p><p class="fi-desc">Мгновенные отчёты для быстрого принятия решений</p></div></div>
+  </div>
+  <div class="snb">14</div>
+</section>
+
+<!-- ================================ SLIDE 15 — BPM: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="10" stroke="currentColor" stroke-width="3.5"/><circle cx="40" cy="12" r="7" stroke="currentColor" stroke-width="3"/><circle cx="64" cy="54" r="7" stroke="currentColor" stroke-width="3"/><circle cx="16" cy="54" r="7" stroke="currentColor" stroke-width="3"/><line x1="40" y1="19" x2="40" y2="30" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 2.5"/><line x1="59" y1="49" x2="49" y2="44" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 2.5"/><line x1="21" y1="49" x2="31" y2="44" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 2.5"/></svg>
+    </div>
+    <p class="mod-name reveal d2">BPM<br>system</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Автоматизация бизнес-процессов:</p><p class="fi-desc">Стандартизация и оптимизация процессов управления объектами</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Мониторинг состояния объектов:</p><p class="fi-desc">Отслеживание текущего состояния и обслуживания объектов в режиме реального времени</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Документооборот:</p><p class="fi-desc">Автоматизация процессов подписания и контроля договоров, заявок и т.д.</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Отчетность и KPI:</p><p class="fi-desc">Формирование комплексных отчетов для анализа эффективности управления</p></div></div>
+  </div>
+  <div class="snb">15</div>
+</section>
+
+<!-- ================================ SLIDE 16 — BPM: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="10" stroke="currentColor" stroke-width="3.5"/><circle cx="40" cy="12" r="7" stroke="currentColor" stroke-width="3"/><circle cx="64" cy="54" r="7" stroke="currentColor" stroke-width="3"/><circle cx="16" cy="54" r="7" stroke="currentColor" stroke-width="3"/><line x1="40" y1="19" x2="40" y2="30" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 2.5"/><line x1="59" y1="49" x2="49" y2="44" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 2.5"/><line x1="21" y1="49" x2="31" y2="44" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 2.5"/></svg>
+    </div>
+    <p class="mod-name reveal d2">BPM<br>system</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Снижение операционных затрат:</p><p class="fi-desc">Автоматизация рутинных задач и оптимизация процессов позволяют сократить расходы и повысить эффективность управления</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Улучшение взаимодействия:</p><p class="fi-desc">Интеграция с другими системами обеспечивает единую информационную среду</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Гибкость управления:</p><p class="fi-desc">Возможность адаптации процессов под специфические нужды каждого объекта</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Поддержка принятия решений:</p><p class="fi-desc">Интегрированные отчёты и KPI обеспечивают оперативное принятие стратегических управленческих решений</p></div></div>
+  </div>
+  <div class="snb">16</div>
+</section>
+
+<!-- ================================ SLIDE 17 — MOBILE APP: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="24" y="8" width="32" height="60" rx="7" stroke="currentColor" stroke-width="3.5"/><rect x="28" y="16" width="24" height="40" rx="3" stroke="currentColor" stroke-width="2.5"/><path d="M34 72 L46 72" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M40 46 L40 36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M36 44 Q40 50 44 44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M40 28 L43 36 L40 34 L37 36 Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" fill="none"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Мобильное<br>приложение</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Программа лояльности:</p><p class="fi-desc">Накопление бонусов, скидок и эксклюзивных предложений для постоянных клиентов</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Персонализированные предложения:</p><p class="fi-desc">Рекомендации и акции на основе данных аналитики поведения пользователей</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Онлайн-продажи:</p><p class="fi-desc">Возможность покупки товаров и бронирования услуг непосредственно через приложение</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Интерактивная навигация:</p><p class="fi-desc">Карта объекта, указатели и маршруты для удобства посетителей</p></div></div>
+  </div>
+  <div class="snb">17</div>
+</section>
+
+<!-- ================================ SLIDE 18 — MOBILE APP: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="24" y="8" width="32" height="60" rx="7" stroke="currentColor" stroke-width="3.5"/><rect x="28" y="16" width="24" height="40" rx="3" stroke="currentColor" stroke-width="2.5"/><path d="M34 72 L46 72" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M40 46 L40 36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M36 44 Q40 50 44 44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M40 28 L43 36 L40 34 L37 36 Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" fill="none"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Мобильное<br>приложение</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Увеличение вовлеченности:</p><p class="fi-desc">Пользователи получают удобство навигации и персональные бонусы, что стимулирует повторные визиты</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Прямой канал коммуникации:</p><p class="fi-desc">Возможность мгновенно информировать клиентов о новинках, акциях и специальных предложениях</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Рост продаж:</p><p class="fi-desc">Онлайн-продажи расширяют коммерческие возможности объекта, позволяя генерировать дополнительный доход</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Сбор ценных данных:</p><p class="fi-desc">Приложение помогает анализировать поведение клиентов для дальнейшей оптимизации маркетинговых стратегий</p></div></div>
+  </div>
+  <div class="snb">18</div>
+</section>
+
+<!-- ================================ SLIDE 19 — ONLINE CASH: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="12" y="10" width="56" height="36" rx="6" stroke="currentColor" stroke-width="3.5"/><rect x="20" y="18" width="40" height="20" rx="3" stroke="currentColor" stroke-width="3"/><path d="M26 30 L32 36 L54 22" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="56" height="16" rx="5" stroke="currentColor" stroke-width="3"/><circle cx="26" cy="60" r="3" fill="currentColor"/><circle cx="40" cy="60" r="3" fill="currentColor"/><circle cx="54" cy="60" r="3" fill="currentColor"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Онлайн-<br>касса</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Онлайн-фискализация продаж:</p><p class="fi-desc">Программное решение, позволяющее передавать данные по чекам напрямую в ОФД без физической кассы</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Мгновенная регистрация и обновления:</p><p class="fi-desc">Кассы могут устанавливаться удалённо, обновляться без остановки бизнеса</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Контроль и безопасность:</p><p class="fi-desc">Все операции проходят шифрование и соответствуют требованиям законодательства РК</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Учет и аналитика:</p><p class="fi-desc">Ведение базы товаров и услуг. Формирование отчетов по продажам, выручке, возвратам</p></div></div>
+  </div>
+  <div class="snb">19</div>
+</section>
+
+<!-- ================================ SLIDE 20 — ONLINE CASH: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><rect x="12" y="10" width="56" height="36" rx="6" stroke="currentColor" stroke-width="3.5"/><rect x="20" y="18" width="40" height="20" rx="3" stroke="currentColor" stroke-width="3"/><path d="M26 30 L32 36 L54 22" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="56" height="16" rx="5" stroke="currentColor" stroke-width="3"/><circle cx="26" cy="60" r="3" fill="currentColor"/><circle cx="40" cy="60" r="3" fill="currentColor"/><circle cx="54" cy="60" r="3" fill="currentColor"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Онлайн-<br>касса</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Снижение затрат:</p><p class="fi-desc">Не требует покупки и обслуживания оборудования — всё работает в облаке</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Упрощение подключения арендаторов:</p><p class="fi-desc">Позволяет подключать к системе любого арендатора за 5 минут — без лишних действий</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Рост прозрачности:</p><p class="fi-desc">Владельцы объектов получают в режиме реального времени данные о реальном обороте арендаторов</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Глубокая аналитика:</p><p class="fi-desc">Данные чека интегрируются в BI-панель metriX для анализа продаж, сезонности и эффективности маркетинга</p></div></div>
+  </div>
+  <div class="snb">20</div>
+</section>
+
+<!-- ================================ SLIDE 21 — PARKING: ЧТО ДЕЛАЕТ? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><line x1="6" y1="24" x2="58" y2="24" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="6" cy="30" r="6" stroke="currentColor" stroke-width="3"/><rect x="12" y="44" width="56" height="22" rx="6" stroke="currentColor" stroke-width="3.5"/><path d="M22 44 L26 32 L54 32 L58 44" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="66" r="8" stroke="currentColor" stroke-width="3"/><circle cx="54" cy="66" r="8" stroke="currentColor" stroke-width="3"/><path d="M30 34 L32 26 L48 26 L50 34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Система<br>управления<br>паркингом</p>
+    <span class="mod-badge mod-badge-what reveal d3">что делает?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Распознавание автомобильных номеров:</p><p class="fi-desc">Система фиксирует номер автомобиля при въезде и выезде, открывая шлагбаум автоматически</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Безбилетная модель:</p><p class="fi-desc">Нет бумажных билетов, нет очередей — только камера, время и точность</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Автоматическое начисление оплаты:</p><p class="fi-desc">Время пребывания рассчитывается системой, плата взымается через QR или в мобильном приложении</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Упрощение процесса:</p><p class="fi-desc">Устраняет необходимость ручного контроля, ускоряет процедуру въезда и выезда, повышая пропускную способность</p></div></div>
+  </div>
+  <div class="snb">21</div>
+</section>
+
+<!-- ================================ SLIDE 22 — PARKING: ДЛЯ ЧЕГО? ================================ -->
+<section class="slide s-mod">
+  <div class="mod-left">
+    <div class="mod-left-bg"></div><div class="mod-left-grid"></div>
+    <div class="mod-icon-wrap rs d1">
+      <svg viewBox="0 0 80 80" fill="none"><line x1="6" y1="24" x2="58" y2="24" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="6" cy="30" r="6" stroke="currentColor" stroke-width="3"/><rect x="12" y="44" width="56" height="22" rx="6" stroke="currentColor" stroke-width="3.5"/><path d="M22 44 L26 32 L54 32 L58 44" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="66" r="8" stroke="currentColor" stroke-width="3"/><circle cx="54" cy="66" r="8" stroke="currentColor" stroke-width="3"/><path d="M30 34 L32 26 L48 26 L50 34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="mod-name reveal d2">Система<br>управления<br>паркингом</p>
+    <span class="mod-badge mod-badge-why reveal d3">для чего?</span>
+  </div>
+  <div class="mod-right">
+    <div class="fi reveal d2"><div class="fi-dot"></div><div><p class="fi-title">Удобство клиентов:</p><p class="fi-desc">Быстрый и бесконтактный въезд/выезд повышает лояльность и снижает потери</p></div></div>
+    <div class="fi reveal d3"><div class="fi-dot"></div><div><p class="fi-title">Оптимизация парковочного пространства:</p><p class="fi-desc">Показывает, сколько машин находится на парковке, в какие часы — это помогает управлять тарифами и доступом</p></div></div>
+    <div class="fi reveal d4"><div class="fi-dot"></div><div><p class="fi-title">Дополнительная выручка:</p><p class="fi-desc">Система превращает парковку в отдельный источник дохода с минимальными затратами</p></div></div>
+    <div class="fi reveal d5"><div class="fi-dot"></div><div><p class="fi-title">Аналитика поведения:</p><p class="fi-desc">Можно отслеживать частоту посещений, среднюю длительность стоянки, привязку к аналитической системе</p></div></div>
+  </div>
+  <div class="snb">22</div>
+</section>
+
+<!-- ================================ SLIDE 23 — WHY METRIX ================================ -->
+<section class="slide s-prob">
+  <nav class="nav"><div class="nav-logo"><svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>metriX company</div><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul><div class="nav-burger"><span></span><span></span></div></nav>
+  <div class="prob-head-wrap reveal d1"><h2 class="sh">Почему <span class="g">metriX</span> — лучшее решение <span class="b">на рынке</span></h2></div>
+  <div class="why-grid">
+    <div class="why-card reveal d2">
+      <div class="why-icon"><svg viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="24" height="24" rx="4" stroke="currentColor" stroke-width="2.5"/><path d="M7 14 L11 18 L21 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <p class="why-title">Комплексное решение «все в одном»</p>
+      <p class="why-desc">Объединяет подсчёт посетителей, сбор продаж, Wi-Fi аналитику, AI-прогнозирование, BPM и мобильное приложение</p>
+    </div>
+    <div class="why-card reveal d2">
+      <div class="why-icon"><svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="10" stroke="currentColor" stroke-width="2.5"/><path d="M14 8 L14 14 L18 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+      <p class="why-title">Индивидуальная настройка</p>
+      <p class="why-desc">Адаптируется под уникальные потребности каждого бизнеса и интегрируется с существующей ИТ-инфраструктурой</p>
+    </div>
+    <div class="why-card reveal d3">
+      <div class="why-icon"><svg viewBox="0 0 28 28" fill="none"><path d="M4 22 L10 14 L16 18 L22 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="6" r="3" fill="currentColor"/></svg></div>
+      <p class="why-title">Прогнозы в режиме реального времени</p>
+      <p class="why-desc">Мгновенная аналитика и предиктивные модели для оперативного принятия решений</p>
+    </div>
+    <div class="why-card reveal d3">
+      <div class="why-icon"><svg viewBox="0 0 28 28" fill="none"><path d="M6 20 L14 8 L22 20 Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 20 L10 24 M18 20 L18 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <p class="why-title">Оптимизация затрат</p>
+      <p class="why-desc">Автоматизация процессов снижает расходы и повышает доходность объектов</p>
+    </div>
+    <div class="why-card reveal d4">
+      <div class="why-icon"><svg viewBox="0 0 28 28" fill="none"><rect x="4" y="10" width="20" height="14" rx="3" stroke="currentColor" stroke-width="2.5"/><path d="M10 10 L10 7 Q10 4 14 4 Q18 4 18 7 L18 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="14" cy="17" r="2" fill="currentColor"/></svg></div>
+      <p class="why-title">Безопасность данных</p>
+      <p class="why-desc">Современные технологии защиты гарантируют высокую точность и конфиденциальность</p>
+    </div>
+    <div class="why-card reveal d4">
+      <div class="why-icon"><svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="10" stroke="currentColor" stroke-width="2.5"/><path d="M10 12 Q14 8 18 12 Q22 16 18 18 Q14 20 10 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
+      <p class="why-title">Постоянное обновление и инновации</p>
+      <p class="why-desc">metriX регулярно обновляется, внедряя новейшие технологии и адаптируясь к меняющимся рыночным условиям</p>
+    </div>
+  </div>
+  <div class="snb">23</div>
+</section>
+
+<!-- ================================ SLIDE 24 — CTA ================================ -->
+<section class="slide s-cta">
+  <nav class="nav"><div class="nav-logo"><svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>metriX company</div><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul><div class="nav-burger"><span></span><span></span></div></nav>
+  <div class="cta-glow"></div>
+  <div class="cta-c">
+    <h2 class="cta-title reveal d1">Будущее за Big Data и AI —<br>начни с <span class="g">metriX</span> уже сегодня</h2>
+    <div class="cta-grid">
+      <div class="cta-card reveal d2">
+        <div class="cta-icon"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="2.5"/><path d="M10 16 L14 20 L22 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <p class="cta-ctitle">Преобразите управление</p>
+        <p class="cta-cdesc">Воспользуйтесь metriX для полного контроля и оптимизации потоков посетителей и продаж</p>
+      </div>
+      <div class="cta-card reveal d3">
+        <div class="cta-icon"><svg viewBox="0 0 32 32" fill="none"><path d="M6 24 L12 14 L18 18 L24 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6 L28 6 L28 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <p class="cta-ctitle">Увеличьте доходность</p>
+        <p class="cta-cdesc">Снизьте расходы и максимизируйте прибыль благодаря интеллектуальной аналитике и предиктивным технологиям</p>
+      </div>
+      <div class="cta-card reveal d4">
+        <div class="cta-icon"><svg viewBox="0 0 32 32" fill="none"><path d="M16 4 L28 10 L28 22 L16 28 L4 22 L4 10 Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M16 4 L16 28 M4 10 L28 22 M28 10 L4 22" stroke="currentColor" stroke-width="1.5" opacity=".5"/></svg></div>
+        <p class="cta-ctitle">Индивидуальное решение</p>
+        <p class="cta-cdesc">Получите платформу, адаптированную под уникальные потребности вашего бизнеса, с лёгкой интеграцией в существующую инфраструктуру</p>
+      </div>
+    </div>
+  </div>
+  <div class="snb">24</div>
+</section>
+
+<!-- ================================ SLIDE 25 — CONTACT ================================ -->
+<section class="slide s-contact">
+  <nav class="nav"><div class="nav-logo"><svg class="nav-logo-svg" viewBox="0 0 40 40" fill="none"><line x1="6" y1="6" x2="24" y2="34" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="34" x2="20" y2="18" stroke="#4361EE" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="18" x2="36" y2="4" stroke="#22C55E" stroke-width="6" stroke-linecap="round"/><polyline points="28,4 36,4 36,12" stroke="#22C55E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>metriX company</div><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Service</a></li><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li></ul><div class="nav-burger"><span></span><span></span></div></nav>
+  <div class="contact-glow"></div>
+  <div class="contact-c">
+    <h2 class="contact-title reveal d1">Свяжитесь со мной</h2>
+    <div class="contact-ring rs d2">
+      <p class="contact-name">Жанибек Балабеков</p>
+      <p class="contact-role">CEO metriX</p>
+      <p class="contact-line">+7 778 1777080</p>
+      <p class="contact-line"><a href="mailto:ceo@metrix.com.ai">ceo@metrix.com.ai</a></p>
+      <p class="contact-line"><a href="https://www.metrix.com.ai" target="_blank">www.metrix.com.ai</a></p>
+    </div>
+  </div>
+  <div class="snb">25</div>
+</section>
+
+</main><!-- /deck-stage -->
+</div><!-- /deck-viewport -->
+
+<!-- Edit mode controls -->
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Режим редактирования (E)">✏️</button>
+
+<script>
+/* === HERO CANVAS PARTICLE SYSTEM === */
+(function(){
+  const c = document.getElementById('heroCanvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const W = 1920, H = 1080;
+  c.width = W; c.height = H;
+
+  const pts = Array.from({length: 90}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    vx: (Math.random()-.5)*.45, vy: (Math.random()-.5)*.45,
+    r: Math.random()*2+.8,
+    o: Math.random()*.4+.1
+  }));
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0||p.x>W) p.vx*=-1;
+      if(p.y<0||p.y>H) p.vy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(67,97,238,${p.o})`;
+      ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[j].x-pts[i].x, dy=pts[j].y-pts[i].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<190){
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle=`rgba(67,97,238,${.08*(1-d/190)})`;
+          ctx.lineWidth=1;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* === SLIDE PRESENTATION CONTROLLER === */
+class Deck {
+  constructor(){
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.n = this.slides.length;
+    this.cur = 0;
+    this.stage = document.getElementById('deckStage');
+    this.pb = document.getElementById('progressBar');
+    this.sc = document.getElementById('slideCounter');
+    this.scale();
+    window.addEventListener('resize', () => this.scale());
+    this.go(0);
+    this.keys();
+    this.touch();
+    this.wheel();
+  }
+
+  scale(){
+    const f = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+    const x = (window.innerWidth - 1920*f)/2;
+    const y = (window.innerHeight - 1080*f)/2;
+    this.stage.style.transform = `translate(${x}px,${y}px) scale(${f})`;
+  }
+
+  go(idx){
+    idx = Math.max(0, Math.min(idx, this.n-1));
+    if(idx === this.cur && this.slides[idx].classList.contains('active')) {
+      this.cur = idx;
+    }
+    this.slides.forEach((s,i) => {
+      s.classList.toggle('active', i===idx);
+      s.classList.toggle('visible', i===idx);
+    });
+    this.cur = idx;
+    const pct = this.n > 1 ? (idx/(this.n-1))*100 : 100;
+    this.pb.style.width = pct + '%';
+    const num = String(idx+1).padStart(2,'0');
+    const tot = String(this.n).padStart(2,'0');
+    this.sc.textContent = `${num} / ${tot}`;
+  }
+
+  keys(){
+    document.addEventListener('keydown', e => {
+      if(e.target.getAttribute('contenteditable')) return;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '||e.key==='PageDown') { e.preventDefault(); this.go(this.cur+1); }
+      if(e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='PageUp') { e.preventDefault(); this.go(this.cur-1); }
+      if(e.key==='Home') this.go(0);
+      if(e.key==='End') this.go(this.n-1);
+    });
+  }
+
+  touch(){
+    let sx = 0, sy = 0;
+    document.addEventListener('touchstart', e => { sx=e.touches[0].clientX; sy=e.touches[0].clientY; }, {passive:true});
+    document.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = e.changedTouches[0].clientY - sy;
+      if(Math.abs(dx)>Math.abs(dy)){
+        if(dx < -40) this.go(this.cur+1);
+        if(dx > 40) this.go(this.cur-1);
+      }
+    }, {passive:true});
+  }
+
+  wheel(){
+    let last = 0;
+    document.addEventListener('wheel', e => {
+      const now = Date.now();
+      if(now - last < 600) return;
+      last = now;
+      if(e.deltaY > 0) this.go(this.cur+1);
+      else this.go(this.cur-1);
+    }, {passive:true});
+  }
+}
+
+const deck = new Deck();
+
+/* === INLINE EDIT MODE === */
+const editor = {
+  isActive: false,
+  toggleEditMode(){
+    this.isActive = !this.isActive;
+    const btn = document.getElementById('editToggle');
+    btn.classList.toggle('active', this.isActive);
+    btn.textContent = this.isActive ? '💾' : '✏️';
+    const editables = document.querySelectorAll('.slide p, .slide h1, .slide h2, .slide li, .slide a');
+    editables.forEach(el => {
+      el.contentEditable = this.isActive ? 'true' : 'false';
+    });
+    if(!this.isActive) this.save();
+  },
+  save(){
+    // In a real deployment, trigger file save here
+    console.log('Presentation content updated.');
+  }
+};
+
+const hotzone = document.getElementById('editHotzone');
+const editBtn = document.getElementById('editToggle');
+let hideT = null;
+
+hotzone.addEventListener('mouseenter', () => { clearTimeout(hideT); editBtn.classList.add('show'); });
+hotzone.addEventListener('mouseleave', () => { hideT = setTimeout(() => { if(!editor.isActive) editBtn.classList.remove('show'); }, 400); });
+editBtn.addEventListener('mouseenter', () => clearTimeout(hideT));
+editBtn.addEventListener('mouseleave', () => { hideT = setTimeout(() => { if(!editor.isActive) editBtn.classList.remove('show'); }, 400); });
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+editBtn.addEventListener('click', () => editor.toggleEditMode());
+document.addEventListener('keydown', e => {
+  if((e.key==='e'||e.key==='E') && !e.target.getAttribute('contenteditable')) editor.toggleEditMode();
+});
+</script>
+</body>
+</html>
